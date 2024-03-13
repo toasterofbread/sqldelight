@@ -15,7 +15,7 @@ class MultiplatformConventions : Plugin<Project> {
     (project.kotlinExtension as KotlinMultiplatformExtension).apply {
       compilerOptions {
         this.freeCompilerArgs.addAll(
-          "-Xexpect-actual-classes"
+          "-Xexpect-actual-classes",
         )
       }
 
