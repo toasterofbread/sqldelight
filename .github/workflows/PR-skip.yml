@@ -15,7 +15,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ macos-14, windows-latest, ubuntu-latest ]
+        os: [ macos-12, macos-14, windows-latest, ubuntu-latest ]
         job: [ instrumentation, test, gradle-plugin-tests ]
         exclude:
           - os: windows-latest

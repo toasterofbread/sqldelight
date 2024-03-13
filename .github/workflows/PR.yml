@@ -25,7 +25,7 @@ jobs:
     strategy:
       # Ensure any changes to the matrix are also made in PR-skip.yml
       matrix:
-        os: [ macos-14, windows-latest, ubuntu-latest ]
+        os: [ macos-12, macos-14, windows-latest, ubuntu-latest ]
         job: [ instrumentation, test, gradle-plugin-tests ]
         exclude:
           - os: windows-latest
@@ -75,14 +75,19 @@ jobs:
         # not parallel otherwise NativeTransacterTest fails.
         run: ./gradlew linuxX64Test --no-parallel
 
-      # android tests
-      - name: Run instrumentation tests
-        if: matrix.os == 'macos-14' && matrix.job == 'instrumentation'
+      # android instrumentation tests
+      - name: Run android-specific instrumentation tests
+        if: matrix.os == 'macos-12' && matrix.job == 'instrumentation'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
           arch: x86_64
-          script: ./gradlew connectedCheck :sqldelight-gradle-plugin:instrumentationTest --stacktrace --parallel
+          script: ./gradlew connectedCheck :sqldelight-gradle-plugin:instrumentationAndroidTest --stacktrace --parallel
+
+      # ios instrumentation tests
+      - name: Run ios-specific instrumentation tests
+        if: matrix.os == 'macos-14' && matrix.job == 'instrumentation'
+        run: ./gradlew :sqldelight-gradle-plugin:instrumentationIosTest --stacktrace --parallel
 
       # ios tests
       - name: Run ios tests

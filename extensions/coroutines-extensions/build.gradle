@@ -33,6 +33,7 @@ kotlin {
         implementation libs.kotlin.coroutines.test
         implementation libs.kotlin.test
         implementation libs.turbine
+        implementation libs.stately.concurrency
       }
     }
     jvmTest {
@@ -45,7 +46,7 @@ kotlin {
       }
     }
     jsCommonTest.dependencies {
-      implementation  projects.drivers.webWorkerDriver
+      implementation projects.drivers.webWorkerDriver
       implementation npm("sql.js", libs.versions.sqljs.get())
       implementation npm("@cashapp/sqldelight-sqljs-worker", projects.drivers.webWorkerDriver.sqljs.dependencyProject.projectDir)
     }

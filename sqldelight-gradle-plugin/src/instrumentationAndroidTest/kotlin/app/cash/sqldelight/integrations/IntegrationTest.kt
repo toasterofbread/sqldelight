@@ -125,34 +125,4 @@ class IntegrationTest {
     val result = runner.build()
     assertThat(result.output).contains("BUILD SUCCESSFUL")
   }
-
-  @Test
-  fun `integration test ios target of a multiplatform project`() {
-    val integrationRoot = File("src/test/integration-multiplatform")
-    val buildGradle = File(integrationRoot, "build.gradle").apply { deleteOnExit() }
-    File(integrationRoot, "ios-build.gradle").copyTo(buildGradle, overwrite = true)
-
-    val runner = GradleRunner.create()
-      .forwardOutput()
-      .withCommonConfiguration(integrationRoot)
-      .withArguments("clean", "iosTest", "--stacktrace")
-
-    val result = runner.build()
-    assertThat(result.output).contains("BUILD SUCCESSFUL")
-  }
-
-  @Test
-  fun `integration metadata task compiles successfully`() {
-    val integrationRoot = File("src/test/integration-multiplatform")
-    val buildGradle = File(integrationRoot, "build.gradle").apply { deleteOnExit() }
-    File(integrationRoot, "ios-build.gradle").copyTo(buildGradle, overwrite = true)
-
-    val runner = GradleRunner.create()
-      .forwardOutput()
-      .withCommonConfiguration(integrationRoot)
-      .withArguments("clean", "compileKotlinMetadata", "--stacktrace")
-
-    val result = runner.build()
-    assertThat(result.output).contains("BUILD SUCCESSFUL")
-  }
 }
