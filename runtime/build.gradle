@@ -16,6 +16,16 @@ apiValidation {
 }
 
 kotlin {
+  applyDefaultHierarchyTemplate {
+    it.common {
+      it.group("jsNativeCommon") {
+        it.withJs()
+        it.withWasmJs()
+        it.withNative()
+      }
+    }
+  }
+
   sourceSets {
     commonTest {
       dependencies {

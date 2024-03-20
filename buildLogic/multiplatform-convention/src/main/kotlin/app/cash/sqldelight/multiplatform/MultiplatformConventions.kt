@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.konan.target.HostManager
 
 class MultiplatformConventions : Plugin<Project> {
@@ -21,7 +22,7 @@ class MultiplatformConventions : Plugin<Project> {
 
       jvm()
 
-      js {
+      val jsConfigure: KotlinJsTargetDsl.() -> Unit = {
         browser {
           testTask {
             it.useKarma {
@@ -35,30 +36,13 @@ class MultiplatformConventions : Plugin<Project> {
           }
         }
       }
+      js(jsConfigure)
       @OptIn(ExperimentalWasmDsl::class)
-      wasmJs {
-        browser {
-          testTask {
-            it.useKarma {
-              useChromeHeadless()
-            }
-          }
-        }
-        compilations.configureEach {
-          it.kotlinOptions {
-            moduleKind = "umd"
-          }
-        }
-      }
+      wasmJs(jsConfigure)
 
       @OptIn(ExperimentalKotlinGradlePluginApi::class)
       applyDefaultHierarchyTemplate {
         common {
-          group("jsNativeCommon") {
-            withJs()
-            withWasmJs()
-            withNative()
-          }
           group("jsCommon") {
             withJs()
             withWasmJs()
