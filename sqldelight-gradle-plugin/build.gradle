@@ -19,6 +19,9 @@ testing {
     grammarkitTest(JvmTestSuite) {
       useJUnit()
     }
+    instrumentationTest(JvmTestSuite) {
+      useJUnit()
+    }
     instrumentationAndroidTest(JvmTestSuite) {
       useJUnit()
     }
@@ -31,6 +34,7 @@ testing {
 [
   configurations.dockerTestImplementation,
   configurations.grammarkitTestImplementation,
+  configurations.instrumentationTestImplementation,
   configurations.instrumentationAndroidTestImplementation,
   configurations.instrumentationIosTestImplementation,
 ].forEach {
@@ -49,6 +53,7 @@ gradlePlugin {
     sourceSets.test,
     sourceSets.dockerTest,
     sourceSets.grammarkitTest,
+    sourceSets.instrumentationTest,
     sourceSets.instrumentationAndroidTest,
     sourceSets.instrumentationIosTest,
   )
@@ -149,32 +154,11 @@ tasks.named('dockerTest') {
   environment("ORG_GRADLE_PROJECT_sqldelightVersion", project.version)
 }
 
-tasks.named("grammarkitTest") {
-  dependsOn(
-    ":dialects:sqlite-3-18:publishAllPublicationsToInstallLocallyRepository",
-    ":sqldelight-compiler:dialect:publishAllPublicationsToInstallLocallyRepository",
-    ":runtime:publishKotlinMultiplatformPublicationToInstallLocallyRepository",
-    ":runtime:publishJvmPublicationToInstallLocallyRepository",
-    ":drivers:sqlite-driver:publishAllPublicationsToInstallLocallyRepository",
-    ":drivers:jdbc-driver:publishAllPublicationsToInstallLocallyRepository",
-    ":sqlite-migrations:publishAllPublicationsToInstallLocallyRepository",
-    ":sqldelight-compiler:publishAllPublicationsToInstallLocallyRepository",
-    ":sqldelight-gradle-plugin:publishAllPublicationsToInstallLocallyRepository",
-    ":sqldelight-compiler:environment:publishAllPublicationsToInstallLocallyRepository",
-    ":sqlite-migrations:environment:publishAllPublicationsToInstallLocallyRepository",
-  )
-  javaLauncher = javaToolchains.launcherFor {
-    languageVersion = JavaLanguageVersion.of(17)
-  }
-  environment("ORG_GRADLE_PROJECT_sqldelightVersion", project.version)
-}
-
-def commonInstrumentationTestDependencies = [
+def commonDependencies = [
   ":dialects:sqlite-3-18:publishAllPublicationsToInstallLocallyRepository",
   ":sqldelight-compiler:dialect:publishAllPublicationsToInstallLocallyRepository",
   ":runtime:publishKotlinMultiplatformPublicationToInstallLocallyRepository",
   ":runtime:publishJvmPublicationToInstallLocallyRepository",
-  ":runtime:publishJsPublicationToInstallLocallyRepository",
   ":drivers:sqlite-driver:publishAllPublicationsToInstallLocallyRepository",
   ":drivers:jdbc-driver:publishAllPublicationsToInstallLocallyRepository",
   ":sqlite-migrations:publishAllPublicationsToInstallLocallyRepository",
@@ -184,34 +168,65 @@ def commonInstrumentationTestDependencies = [
   ":sqlite-migrations:environment:publishAllPublicationsToInstallLocallyRepository",
 ]
 
-tasks.named("instrumentationAndroidTest") {
+tasks.named("grammarkitTest") {
   dependsOn(
-    *commonInstrumentationTestDependencies,
-
-    ":drivers:android-driver:publishAllPublicationsToInstallLocallyRepository",
+    *commonDependencies,
   )
   javaLauncher = javaToolchains.launcherFor {
-    languageVersion = JavaLanguageVersion.of(ToolchainConventions.BUILD_JDK)
+    languageVersion = JavaLanguageVersion.of(17)
   }
   environment("ORG_GRADLE_PROJECT_sqldelightVersion", project.version)
 }
 
+def iosTestDependencies = [
+  ":drivers:native-driver:publishIosX64PublicationToInstallLocallyRepository",
+  ":drivers:native-driver:publishIosSimulatorArm64PublicationToInstallLocallyRepository",
+  ":runtime:publishIosX64PublicationToInstallLocallyRepository",
+  ":runtime:publishIosSimulatorArm64PublicationToInstallLocallyRepository",
+  ":runtime:publishIosArm64PublicationToInstallLocallyRepository",
+  ":runtime:publishMacosX64PublicationToInstallLocallyRepository",
+]
+
+def multiplatformTestDependencies = [
+  ":drivers:native-driver:publishKotlinMultiplatformPublicationToInstallLocallyRepository",
+]
+
+def instrumentationTasks = [
+  "instrumentationTest",
+  "instrumentationAndroidTest",
+  "instrumentationIosTest",
+]
+
+tasks
+  .named { it in instrumentationTasks }
+  .configureEach { task ->
+    dependsOn(
+      *commonDependencies,
+      ":runtime:publishJsPublicationToInstallLocallyRepository",
+    )
+    javaLauncher = javaToolchains.launcherFor {
+      languageVersion = JavaLanguageVersion.of(ToolchainConventions.BUILD_JDK)
+    }
+    environment("ORG_GRADLE_PROJECT_sqldelightVersion", project.version)
+  }
+
+tasks.named("instrumentationTest") {
+  dependsOn(
+    *multiplatformTestDependencies,
+  )
+}
+
+tasks.named("instrumentationAndroidTest") {
+  dependsOn(
+    ":drivers:android-driver:publishAllPublicationsToInstallLocallyRepository",
+  )
+}
+
 tasks.named("instrumentationIosTest") {
   dependsOn(
-    *commonInstrumentationTestDependencies,
-
-    ":drivers:native-driver:publishIosX64PublicationToInstallLocallyRepository",
-    ":drivers:native-driver:publishIosSimulatorArm64PublicationToInstallLocallyRepository",
-    ":drivers:native-driver:publishKotlinMultiplatformPublicationToInstallLocallyRepository",
-    ":runtime:publishIosX64PublicationToInstallLocallyRepository",
-    ":runtime:publishIosSimulatorArm64PublicationToInstallLocallyRepository",
-    ":runtime:publishIosArm64PublicationToInstallLocallyRepository",
-    ":runtime:publishMacosX64PublicationToInstallLocallyRepository",
+    *iosTestDependencies,
+    *multiplatformTestDependencies,
   )
-  javaLauncher = javaToolchains.launcherFor {
-    languageVersion = JavaLanguageVersion.of(ToolchainConventions.BUILD_JDK)
-  }
-  environment("ORG_GRADLE_PROJECT_sqldelightVersion", project.version)
 }
 
 tasks.named('validatePlugins') {

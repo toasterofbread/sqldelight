@@ -91,7 +91,7 @@ jobs:
       # ios instrumentation tests
       - name: Run ios-specific instrumentation tests
         if: matrix.os == 'macos-14' && matrix.job == 'instrumentation'
-        run: ./gradlew :sqldelight-gradle-plugin:instrumentationIosTest --stacktrace --parallel
+        run: ./gradlew :sqldelight-gradle-plugin:instrumentationTest :sqldelight-gradle-plugin:instrumentationIosTest --stacktrace --parallel
 
       # ios tests
       - name: Run ios tests
