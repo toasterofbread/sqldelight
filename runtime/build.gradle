@@ -20,7 +20,7 @@ kotlin {
     it.common {
       it.group("jsNativeCommon") {
         it.withJs()
-        it.withWasmJs()
+        it.withWasm()
         it.withNative()
       }
     }

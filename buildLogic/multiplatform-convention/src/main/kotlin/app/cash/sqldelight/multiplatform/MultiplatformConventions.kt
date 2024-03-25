@@ -45,7 +45,7 @@ class MultiplatformConventions : Plugin<Project> {
         common {
           group("jsCommon") {
             withJs()
-            withWasmJs()
+            withWasm()
           }
         }
       }

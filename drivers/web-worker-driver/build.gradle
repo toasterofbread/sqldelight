@@ -27,7 +27,7 @@ kotlin {
     it.common {
       it.group("jsCommon") {
         it.withJs()
-        it.withWasmJs()
+        it.withWasm()
       }
     }
   }
